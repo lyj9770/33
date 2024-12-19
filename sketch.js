@@ -3,6 +3,11 @@ let maskGraphics; // 검정 레이어용 그래픽
 let button; // 이미지 변경 버튼
 let currentText = "산타 슈니즈를 찾아보세요!"; // 첫 번째 이미지 텍스트
 
+let startTime;
+let totalTime = 60; // 타이머 시간 (초)
+let barWidth;
+let timerEnded = false; // 타이머가 끝났는지 여부
+
 function preload() {
   // 초기 이미지 로드
   img = loadImage('img.png'); // 첫 번째 이미지 경로
@@ -10,6 +15,7 @@ function preload() {
 
 function setup() { 
   createCanvas(windowWidth, windowHeight);
+  startTime = millis(); // 타이머 시작 시간
 
   // 검정 레이어 생성
   maskGraphics = createGraphics(windowWidth, windowHeight);
@@ -37,13 +43,46 @@ function draw() {
   textSize(responsiveTextSize);
   textAlign(CENTER, TOP); // 상단 중앙 정렬
   text(currentText, width / 2, 20); // 상단 중앙에 텍스트 표시
+
+  // 남은 시간 계산
+  let elapsedTime = (millis() - startTime) / 1000; // 초 단위
+  let remainingTime = totalTime - elapsedTime;
+  remainingTime = max(0, remainingTime); // 남은 시간을 0 이하로 내려가지 않도록 설정
+ 
+  // 바의 길이와 색상 계산
+  let progress = remainingTime / totalTime;
+  barWidth = windowWidth / 5; // 바의 전체 길이 (화면의 1/3)
+  let currentWidth = progress * barWidth;
+ 
+  // 색상 변화 (초록색에서 빨간색으로)
+  let red = map(progress, 0, 1, 255, 0);
+  let green = map(progress, 0, 1, 0, 255);
+ 
+  // 둥근 바 그리기
+  noStroke();
+  fill(red, green, 0);
+  rect(windowWidth - barWidth - 20, 20, currentWidth, 20, 10); // 모서리 반지름 10
+
+  // 둥근 테두리 그리기
+  stroke(255);
+  noFill();
+  rect(windowWidth - barWidth - 20, 20, barWidth, 20, 10); // 모서리 반지름 10
+ 
+  // 타이머가 끝나면 멈춤
+  if (remainingTime <= 0 && !timerEnded) {
+    timerEnded = true; // 타이머 종료 상태 변경
+    frameRate(30); // 프레임 속도를 제한하여 이벤트 처리 가능하도록 함
+  }
 }
 
 function mouseDragged() {
-  // 드래그하는 위치를 원형으로 지우기
-  maskGraphics.erase(); // 지우기 모드 활성화
-  maskGraphics.circle(mouseX, mouseY, 50); // 마우스 위치에 원형 지우기
-  maskGraphics.noErase(); // 지우기 모드 비활성화
+  // 타이머가 끝난 경우에는 드래그가 동작하지 않도록
+  if (!timerEnded) {
+    // 드래그하는 위치를 원형으로 지우기
+    maskGraphics.erase(); // 지우기 모드 활성화
+    maskGraphics.circle(mouseX, mouseY, 50); // 마우스 위치에 원형 지우기
+    maskGraphics.noErase(); // 지우기 모드 비활성화
+  }
 }
 
 function changeImage() {
