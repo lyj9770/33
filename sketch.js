@@ -31,8 +31,22 @@ function setup() {
 }
 
 function draw() {
-  // 배경에 이미지 그리기
-  image(img, 0, 0, width, height);
+/*   // 배경에 이미지 그리기
+  image(img, 0, 0, width, height); */
+
+  // 이미지 비율 계산
+  let imgRatio = img.width / img.height; // 이미지 비율
+  let newWidth = width * 0.8; // 화면 너비의 80%로 이미지 너비 설정 (원하는 크기로 조정 가능)
+  let newHeight = newWidth / imgRatio; // 비율을 유지한 높이 계산
+
+  // 이미지가 화면보다 커지지 않도록 제한
+  if (newHeight > height * 0.8) {
+    newHeight = height * 0.8; // 화면 높이의 80%로 설정
+    newWidth = newHeight * imgRatio; // 비율에 맞춰 너비 계산
+  }
+
+  // 배경에 이미지 그리기, 화면 중심에 배치
+  image(img, (width - newWidth) / 2, (height - newHeight) / 2, newWidth, newHeight);
 
   // 검정 레이어 덮기
   image(maskGraphics, 0, 0);
